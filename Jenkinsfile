@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_REPO = "flask-app-with-docker-jenkins"
+        DOCKER_HUB_REPO = "tomkugelman/flask-app-with-docker-jenkins"
         CONTAINER_NAME = "flask-container"
         STUB_VALUE = "200"
     }
@@ -21,8 +21,11 @@ pipeline {
                 sh 'docker image tag $DOCKER_HUB_REPO:latest $DOCKER_HUB_REPO:$BUILD_NUMBER'
 
                 //  Pushing Image to Repository
-                sh 'docker push talha1995/test:$BUILD_NUMBER'
-                sh 'docker push talha1995/test:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker_hub', usernameVariable: 'USER1', passwordVariable: 'PASS1')]) {
+                    sh 'docker login -u "$USER1" -p "$PASS1"'
+                }
+                sh 'docker push $DOCKER_HUB_REPO:$BUILD_NUMBER'
+                sh 'docker push $DOCKER_HUB_REPO:latest'
                 
                 echo "Image built and pushed to repository"
             }
